@@ -2,30 +2,45 @@ const rectDetails = [
   {
     x: 400,
     y: 60,
-    width: 80,
-    height: 40,
+    width: 100,
+    height: 80,
     color: "pink",
     id: "r1",
     line: [
       { id: "l1", coordinates: ["x1", "y1"] },
       { id: "l2", coordinates: ["x1", "y1"] },
       { id: "l3", coordinates: ["x1", "y1"] }
-    ]
+    ],
+    children: [{
+      x: 420,
+      y: 90,
+      width: 20,
+      height: 20,
+      color: "brown",
+      id: 'rc1'
+    }, {
+      x: 460,
+      y: 90,
+      width: 20,
+      height: 20,
+      color: "black",
+      id: 'rc2'
+    }]
   },
   {
     x: 40,
     y: 270,
-    width: 80,
-    height: 40,
-    color: "purple",
+    width: 100,
+    height: 80,
+    color: "aquamarine",
     id: "r2",
     line: [{ id: "l1", coordinates: ["x2", "y2"] }]
   },
   {
     x: 300,
     y: 270,
-    width: 80,
-    height: 40,
+    width: 100,
+    height: 80,
     color: "yellow",
     id: "r3",
     line: [{ id: "l2", coordinates: ["x2", "y2"] }]
@@ -33,8 +48,8 @@ const rectDetails = [
   {
     x: 600,
     y: 270,
-    width: 80,
-    height: 40,
+    width: 100,
+    height: 80,
     color: "cyan",
     id: "r4",
     line: [{ id: "l3", coordinates: ["x2", "y2"] }]
@@ -69,15 +84,20 @@ const lineDetails = [
 ];
 
 const dragging = (event, d) => {
-  var xCoor = event.x;
-  var yCoor = event.y;
+  var xCoor = event.sourceEvent.clientX;
+  var yCoor = event.sourceEvent.clientY;
+
+  const index = rectDetails.findIndex(v => v.id === d.id);
+  rectDetails[index].x = xCoor;
+  rectDetails[index].y = yCoor;
+
   // setting the x and y coordinate of the rectangles
   d3.select(`#${d.id}`).attr("x", xCoor).attr("y", yCoor);
 
   //   updating the coordinates of the line
   d.line.forEach(({ id, coordinates }) => {
     const attrObj = {};
-      d3.select(`#${id}`).attr(coordinates[0], xCoor+40).attr(coordinates[1], yCoor+20);
+    d3.select(`#${id}`).attr(coordinates[0], xCoor + 40).attr(coordinates[1], yCoor + 20);
   });
 };
 
@@ -95,7 +115,21 @@ d3.select("svg")
 d3.select("svg")
   .selectAll("rect")
   .data(rectDetails)
-  .join("rect")
+  .join((enter) => {
+    // console.log(enter, enter._groups[0][0])
+    // setTimeout(() => {
+      enter.selectAll("rect").data(enter._groups[0][0].__data__.children).join("rect")
+      .attr("stroke", "maroon")
+      .attr("x", (d) => d.x)
+      .attr("y", (d) => d.y)
+      .attr("width", (d) => d.width)
+      .attr("height", (d) => d.height)
+      .attr("id", (d) => d.id)
+      .style("fill", (d) => d.color)
+    // })
+
+    return enter.append("rect")
+  })
   .attr("stroke", "maroon")
   .attr("x", (d) => d.x)
   .attr("y", (d) => d.y)
@@ -107,8 +141,18 @@ d3.select("svg")
     d3.drag().on("start", dragStart).on("drag", dragging).on("end", dragEnd)
   );
 
+// d3.select("svg")
+//   .data(rectDetails[0].children)
+//   .append("rect")
+//   .attr("stroke", "maroon")
+//   .attr("x", (d) => d.x)
+//   .attr("y", (d) => d.y)
+//   .attr("width", (d) => d.width)
+//   .attr("height", (d) => d.height)
+//   .attr("id", (d) => d.id)
+//   .style("fill", (d) => d.color)
+
 function dragStart(event, d) {
-  console.log(event, d);
   d3.select(this).style("stroke", "aquamarine");
 }
 
