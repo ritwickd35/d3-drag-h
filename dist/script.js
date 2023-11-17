@@ -112,25 +112,28 @@ d3.select("svg")
   .attr("x2", (d) => d.x2)
   .attr("y2", (d) => d.y2);
 
-d3.select("svg")
+const parentRects = d3.select("svg")
   .selectAll("rect")
   .data(rectDetails)
-  .join((enter) => {
-    // console.log(enter, enter._groups[0][0])
-    // setTimeout(() => {
-      enter.selectAll("rect").data(enter._groups[0][0].__data__.children).join("rect")
-      .attr("stroke", "maroon")
-      .attr("x", (d) => d.x)
-      .attr("y", (d) => d.y)
-      .attr("width", (d) => d.width)
-      .attr("height", (d) => d.height)
-      .attr("id", (d) => d.id)
-      .style("fill", (d) => d.color)
-    // })
+  .join("rect"
+    // (enter) => {
+    // // console.log(enter, enter._groups[0][0])
+    // // setTimeout(() => {
+    // enter.selectAll("rect").data(enter._groups[0][0].__data__.children).join("rect")
+    //   .attr("stroke", "maroon")
+    //   .attr("x", (d) => d.x)
+    //   .attr("y", (d) => d.y)
+    //   .attr("width", (d) => d.width)
+    //   .attr("height", (d) => d.height)
+    //   .attr("id", (d) => d.id)
+    //   .style("fill", (d) => d.color)
+    // // })
 
-    return enter.append("rect")
-  })
-  .attr("stroke", "maroon")
+    // return enter.append("rect")
+    // }
+  );
+
+parentRects.attr("stroke", "maroon")
   .attr("x", (d) => d.x)
   .attr("y", (d) => d.y)
   .attr("width", (d) => d.width)
@@ -140,6 +143,24 @@ d3.select("svg")
   .call(
     d3.drag().on("start", dragStart).on("drag", dragging).on("end", dragEnd)
   );
+
+console.log(parentRects)
+
+parentRects
+  .selectAll("rect")
+  .data(d => {
+    if (d.children)
+      return d.children;
+    else return []
+  })
+  .join("rect")
+  .attr("stroke", "maroon")
+  .attr("x", (d) => d.x)
+  .attr("y", (d) => d.y)
+  .attr("width", (d) => d.width)
+  .attr("height", (d) => d.height)
+  .attr("id", (d) => d.id)
+  .style("fill", (d) => d.color)
 
 // d3.select("svg")
 //   .data(rectDetails[0].children)
