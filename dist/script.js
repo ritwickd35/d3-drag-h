@@ -20,7 +20,8 @@ const rectDetails = [
     height: 80,
     color: "aquamarine",
     id: "r2",
-    line: [{ id: "l1", coordinates: ["x2", "y2"] }]
+    line: [{ id: "l1", coordinates: ["x2", "y2"] }],
+    children: ['rc3', 'rc4']
   },
   {
     x: 300,
@@ -29,7 +30,8 @@ const rectDetails = [
     height: 80,
     color: "yellow",
     id: "r3",
-    line: [{ id: "l2", coordinates: ["x2", "y2"] }]
+    line: [{ id: "l2", coordinates: ["x2", "y2"] }],
+    children: ['rc5', 'rc6', 'rc7', 'rc8',  'rc9', 'rc10']
   },
   {
     x: 600,
@@ -38,7 +40,8 @@ const rectDetails = [
     height: 80,
     color: "cyan",
     id: "r4",
-    line: [{ id: "l3", coordinates: ["x2", "y2"] }]
+    line: [{ id: "l3", coordinates: ["x2", "y2"] }],
+    children: ['rc11', 'rc12', 'rc13']
   }, {
     x: 420,
     y: 90,
@@ -57,6 +60,107 @@ const rectDetails = [
     id: 'rc2',
     child: true,
     parent: 'r1'
+  },
+  {
+    x: 60,
+    y: 290,
+    width: 20,
+    height: 20,
+    color: "red",
+    id: 'rc3',
+    child: true,
+    parent: 'r2'
+  }, {
+    x: 90,
+    y: 290,
+    width: 20,
+    height: 20,
+    color: "yellow",
+    id: 'rc4',
+    child: true,
+    parent: 'r2'
+  },
+  {
+    x: 310,
+    y: 280,
+    width: 20,
+    height: 20,
+    color: "pink",
+    id: 'rc5',
+    child: true,
+    parent: 'r3'
+  }, {
+    x: 340,
+    y: 280,
+    width: 20,
+    height: 20,
+    color: "violet",
+    id: 'rc6',
+    child: true,
+    parent: 'r3'
+  }, {x: 370,
+    y: 280,
+    width: 20,
+    height: 20,
+    color: "white",
+    id: 'rc7',
+    child: true,
+    parent: 'r3'},
+  {
+    x: 310,
+    y: 320,
+    width: 20,
+    height: 20,
+    color: "red",
+    id: 'rc8',
+    child: true,
+    parent: 'r3'
+  }, {
+    x: 340,
+    y: 320,
+    width: 20,
+    height: 20,
+    color: "gray",
+    id: 'rc9',
+    child: true,
+    parent: 'r3'
+  },{
+    x: 370,
+    y: 320,
+    width: 20,
+    height: 20,
+    color: "blue",
+    id: 'rc10',
+    child: true,
+    parent: 'r3'
+  },{
+    x: 620,
+    y: 285,
+    width: 20,
+    height: 20,
+    color: "aliceblue",
+    id: 'rc11',
+    child: true,
+    parent: 'r4'
+  },
+  {
+    x: 660,
+    y: 285,
+    width: 20,
+    height: 20,
+    color: "red",
+    id: 'rc12',
+    child: true,
+    parent: 'r4'
+  }, {
+    x: 640,
+    y: 315,
+    width: 20,
+    height: 20,
+    color: "maroon",
+    id: 'rc13',
+    child: true,
+    parent: 'r4'
   }
 ];
 const dragPadding = 5;
@@ -105,19 +209,17 @@ const dragging = (event, d) => {
      parentYIndex = rectDetails[parentIndex].y,
      parentWidth = rectDetails[parentIndex].width,
      parentHeight = rectDetails[parentIndex].height;
-    
 
     if (xCoor > parentXIndex + dragPadding && xCoor < parentXIndex + parentWidth - dragPadding - d.width) {
       rectDetails[index].x = xCoor;
-
+      console.log(1)
     }
     if (yCoor > parentYIndex + dragPadding && yCoor < parentYIndex + parentHeight - dragPadding - d.height) {
       rectDetails[index].y = yCoor;
-
     }
     if (xCoor <= parentXIndex + dragPadding) {
       rectDetails[index].x = parentXIndex + dragPadding;
-
+      console.log(2)
     }
     if (yCoor > parentYIndex + parentHeight - dragPadding) {
       rectDetails[index].y = parentYIndex + parentHeight - d.height - dragPadding;
