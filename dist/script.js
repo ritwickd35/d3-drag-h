@@ -100,23 +100,27 @@ const dragging = (event, d) => {
   if (d.child) {
     // if its a child element then it cant move outside parent boundary
     const parentIndex = rectDetails.findIndex(v => v.id === d.parent)
+    
+    const parentXIndex = rectDetails[parentIndex].x,
+     parentYIndex = rectDetails[parentIndex].y,
+     parentWidth = rectDetails[parentIndex].width,
+     parentHeight = rectDetails[parentIndex].height;
+    
 
-
-
-    if (xCoor > rectDetails[parentIndex].x + dragPadding && xCoor < rectDetails[parentIndex].x + rectDetails[parentIndex].width - dragPadding - d.width) {
+    if (xCoor > parentXIndex + dragPadding && xCoor < parentXIndex + parentWidth - dragPadding - d.width) {
       rectDetails[index].x = xCoor;
 
     }
-    if (yCoor > rectDetails[parentIndex].y + dragPadding && yCoor < rectDetails[parentIndex].y + rectDetails[parentIndex].height - dragPadding - d.height) {
+    if (yCoor > parentYIndex + dragPadding && yCoor < parentYIndex + parentHeight - dragPadding - d.height) {
       rectDetails[index].y = yCoor;
 
     }
-    if (xCoor <= rectDetails[parentIndex].x + dragPadding) {
-      rectDetails[index].x = rectDetails[parentIndex].x + dragPadding;
+    if (xCoor <= parentXIndex + dragPadding) {
+      rectDetails[index].x = parentXIndex + dragPadding;
 
     }
-    if (yCoor > rectDetails[parentIndex].y + rectDetails[parentIndex].height - dragPadding) {
-      rectDetails[index].y = rectDetails[parentIndex].y + rectDetails[parentIndex].height - d.height - dragPadding;
+    if (yCoor > parentYIndex + parentHeight - dragPadding) {
+      rectDetails[index].y = parentYIndex + parentHeight - d.height - dragPadding;
     }
   }
   else {
@@ -125,15 +129,17 @@ const dragging = (event, d) => {
       x: rectDetails[index].x,
       y: rectDetails[index].y
     };
-    console.log(parentPosition)
 
     if (d.children) {
       d.children.forEach(childID => {
         const childIndex = rectDetails.findIndex(v => v.id === childID);
 
+        const childX = rectDetails[childIndex].x;
+        const childY = rectDetails[childIndex].y;
+
         // calculate offset with parent
-        const childXOffset = rectDetails[childIndex].x - parentPosition.x;
-        const childYOffset = rectDetails[childIndex].y - parentPosition.y;
+        const childXOffset = childX - parentPosition.x;
+        const childYOffset = childY - parentPosition.y;
 
         // update child position
         d3.select(`#${childID}`).attr("x", xCoor + childXOffset).attr("y", yCoor + childYOffset);
