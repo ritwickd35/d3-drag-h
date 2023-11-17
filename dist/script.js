@@ -11,21 +11,7 @@ const rectDetails = [
       { id: "l2", coordinates: ["x1", "y1"] },
       { id: "l3", coordinates: ["x1", "y1"] }
     ],
-    children: [{
-      x: 420,
-      y: 90,
-      width: 20,
-      height: 20,
-      color: "brown",
-      id: 'rc1'
-    }, {
-      x: 460,
-      y: 90,
-      width: 20,
-      height: 20,
-      color: "black",
-      id: 'rc2'
-    }]
+    children: ['rc1', 'rc2']
   },
   {
     x: 40,
@@ -53,8 +39,27 @@ const rectDetails = [
     color: "cyan",
     id: "r4",
     line: [{ id: "l3", coordinates: ["x2", "y2"] }]
+  }, {
+    x: 420,
+    y: 90,
+    width: 20,
+    height: 20,
+    color: "brown",
+    id: 'rc1',
+    child: true,
+    parent: 'r1'
+  }, {
+    x: 460,
+    y: 90,
+    width: 20,
+    height: 20,
+    color: "black",
+    id: 'rc2',
+    child: true,
+    parent: 'r1'
   }
 ];
+const dragPadding = 5;
 
 const lineDetails = [
   {
@@ -84,21 +89,73 @@ const lineDetails = [
 ];
 
 const dragging = (event, d) => {
-  var xCoor = event.sourceEvent.clientX;
-  var yCoor = event.sourceEvent.clientY;
+
+
+  const xCoor = event.sourceEvent.clientX;
+  const yCoor = event.sourceEvent.clientY;
 
   const index = rectDetails.findIndex(v => v.id === d.id);
-  rectDetails[index].x = xCoor;
-  rectDetails[index].y = yCoor;
+
+  // check if the element is child or not
+  if (d.child) {
+    // if its a child element then it cant move outside parent boundary
+    const parentIndex = rectDetails.findIndex(v => v.id === d.parent)
+
+
+
+    if (xCoor > rectDetails[parentIndex].x + dragPadding && xCoor < rectDetails[parentIndex].x + rectDetails[parentIndex].width - dragPadding - d.width) {
+      rectDetails[index].x = xCoor;
+
+    }
+    if (yCoor > rectDetails[parentIndex].y + dragPadding && yCoor < rectDetails[parentIndex].y + rectDetails[parentIndex].height - dragPadding - d.height) {
+      rectDetails[index].y = yCoor;
+
+    }
+    if (xCoor <= rectDetails[parentIndex].x + dragPadding) {
+      rectDetails[index].x = rectDetails[parentIndex].x + dragPadding;
+
+    }
+    if (yCoor > rectDetails[parentIndex].y + rectDetails[parentIndex].height - dragPadding) {
+      rectDetails[index].y = rectDetails[parentIndex].y + rectDetails[parentIndex].height - d.height - dragPadding;
+    }
+  }
+  else {
+    // its a parent element, children if any should move with parent
+    const parentPosition = {
+      x: rectDetails[index].x,
+      y: rectDetails[index].y
+    };
+    console.log(parentPosition)
+
+    if (d.children) {
+      d.children.forEach(childID => {
+        const childIndex = rectDetails.findIndex(v => v.id === childID);
+
+        // calculate offset with parent
+        const childXOffset = rectDetails[childIndex].x - parentPosition.x;
+        const childYOffset = rectDetails[childIndex].y - parentPosition.y;
+
+        // update child position
+        d3.select(`#${childID}`).attr("x", xCoor + childXOffset).attr("y", yCoor + childYOffset);
+
+        rectDetails[index].x = xCoor;
+        rectDetails[index].y = yCoor;
+        rectDetails[childIndex].x = xCoor + childXOffset;
+        rectDetails[childIndex].y = yCoor + childYOffset;
+      })
+    }
+  }
 
   // setting the x and y coordinate of the rectangles
-  d3.select(`#${d.id}`).attr("x", xCoor).attr("y", yCoor);
+  d3.select(`#${d.id}`).attr("x", rectDetails[index].x).attr("y", rectDetails[index].y);
+
 
   //   updating the coordinates of the line
-  d.line.forEach(({ id, coordinates }) => {
-    const attrObj = {};
-    d3.select(`#${id}`).attr(coordinates[0], xCoor + 40).attr(coordinates[1], yCoor + 20);
-  });
+  if (d.line)
+    d.line.forEach(({ id, coordinates }) => {
+      const attrObj = {};
+      d3.select(`#${id}`).attr(coordinates[0], xCoor + 40).attr(coordinates[1], yCoor + 20);
+    });
 };
 
 d3.select("svg")
@@ -115,23 +172,7 @@ d3.select("svg")
 const parentRects = d3.select("svg")
   .selectAll("rect")
   .data(rectDetails)
-  .join("rect"
-    // (enter) => {
-    // // console.log(enter, enter._groups[0][0])
-    // // setTimeout(() => {
-    // enter.selectAll("rect").data(enter._groups[0][0].__data__.children).join("rect")
-    //   .attr("stroke", "maroon")
-    //   .attr("x", (d) => d.x)
-    //   .attr("y", (d) => d.y)
-    //   .attr("width", (d) => d.width)
-    //   .attr("height", (d) => d.height)
-    //   .attr("id", (d) => d.id)
-    //   .style("fill", (d) => d.color)
-    // // })
-
-    // return enter.append("rect")
-    // }
-  );
+  .join("rect");
 
 parentRects.attr("stroke", "maroon")
   .attr("x", (d) => d.x)
@@ -144,34 +185,7 @@ parentRects.attr("stroke", "maroon")
     d3.drag().on("start", dragStart).on("drag", dragging).on("end", dragEnd)
   );
 
-console.log(parentRects)
 
-parentRects
-  .selectAll("rect")
-  .data(d => {
-    if (d.children)
-      return d.children;
-    else return []
-  })
-  .join("rect")
-  .attr("stroke", "maroon")
-  .attr("x", (d) => d.x)
-  .attr("y", (d) => d.y)
-  .attr("width", (d) => d.width)
-  .attr("height", (d) => d.height)
-  .attr("id", (d) => d.id)
-  .style("fill", (d) => d.color)
-
-// d3.select("svg")
-//   .data(rectDetails[0].children)
-//   .append("rect")
-//   .attr("stroke", "maroon")
-//   .attr("x", (d) => d.x)
-//   .attr("y", (d) => d.y)
-//   .attr("width", (d) => d.width)
-//   .attr("height", (d) => d.height)
-//   .attr("id", (d) => d.id)
-//   .style("fill", (d) => d.color)
 
 function dragStart(event, d) {
   d3.select(this).style("stroke", "aquamarine");
